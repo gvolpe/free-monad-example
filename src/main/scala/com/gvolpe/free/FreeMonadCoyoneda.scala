@@ -3,7 +3,7 @@ package com.gvolpe.free
 import scala.language.higherKinds
 import scalaz._
 
-object FreeMonad extends App {
+object FreeMonadCoyoneda extends App {
 
   // Defining the algebra for operations
   sealed trait Operation[A]
