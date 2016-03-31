@@ -35,4 +35,6 @@ object program extends App {
   * */
   def runApp = app.foldMap(TestAuth or ConsoleInterpreter)
 
+  runApp
+
 }
