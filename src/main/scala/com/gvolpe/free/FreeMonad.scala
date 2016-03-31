@@ -7,12 +7,8 @@ object FreeMonad extends App {
 
   // Defining the algebra for operations
   sealed trait Operation[A]
-  object Operation {
-    case object Get extends Operation[String]
-    case class Set(value: String) extends Operation[Unit]
-  }
-
-  import Operation._
+  case object Get extends Operation[String]
+  case class Set(value: String) extends Operation[Unit]
 
   // Free monad over the free functor of Operation
   type FreeOperation[A] = Free.FreeC[Operation, A]
@@ -32,8 +28,8 @@ object FreeMonad extends App {
   val program2 = for {
     x <- get
     y <- get
-    _ <- set(x)
     _ <- set(y)
+    _ <- set(x)
   } yield ()
 
   // Mock for an IO Operation
@@ -43,12 +39,12 @@ object FreeMonad extends App {
       case Nil    => (mock, "")
       case h :: t => (mock.copy(in = t), h)
     }
-    def write(value: String)(mock: Mock): Mock =
-      mock.copy(out = value :: mock.out)
+    def write(value: String)(mock: Mock): Mock = mock.copy(out = value :: mock.out)
   }
-  type MockState[A] = State[Mock, A]
 
   // Natural transformation to a Mock State
+  type MockState[A] = State[Mock, A]
+
   def operationToState: Operation ~> MockState = new (Operation ~> MockState) {
     def apply[A](op: Operation[A]): MockState[A] = op match {
       case Get => State(Mock.read)
@@ -58,7 +54,8 @@ object FreeMonad extends App {
 
   val init = Mock(in = List("Hello", "World"), out = List())
 
-  // Interpreter 1 (Operation to State)
-  println(Free.runFC(program2)(operationToState).exec(init).out)
+  // Running the Definition (program2) with the Interpreter (Operation to State)
+  val result = Free.runFC(program2)(operationToState).exec(init).out
+  println(result)
 
 }
